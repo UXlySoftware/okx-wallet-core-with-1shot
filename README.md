@@ -116,7 +116,7 @@ First copy `.evn.example` into `.env` and set `DEPLOYER_PRIVATE_KEY` and `DEPLOY
 
 Fill in `ONESHOT_KEY`, `ONESHOT_SECRET`, and `ONESHOT_ORG_ID` in `.env`.
 
-Make sure you use the WalletCore address for Sepolia network: `0x80296FF8D1ED46f8e3C7992664D13B833504c2Bb`
+Make sure you use the WalletCore address for Sepolia network for `WALLET_CORE`: `0x80296FF8D1ED46f8e3C7992664D13B833504c2Bb`
 
 Deploy and initialize your ERC-7702 wallet:
 
