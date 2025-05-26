@@ -14,8 +14,7 @@ const main = async () => {
   const businessId: string = process.env.ONESHOT_ORG_ID as string;
   const oneshotClient = new OneShotClient({
     apiKey: oneshotKey,
-    apiSecret: oneshotSecret,
-    baseUrl: 'https://api.1shotapi.dev/v0'
+    apiSecret: oneshotSecret
   });
 
   const wallet = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, ethers.provider);
@@ -91,6 +90,7 @@ const main = async () => {
   const transactions = await oneshotClient.transactions.list(
     businessId,
     {
+      name: '7702 EOA Endpoint',
       contractAddress: wallet.address
     }
   );
