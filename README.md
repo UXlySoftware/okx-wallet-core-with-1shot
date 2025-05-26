@@ -108,26 +108,45 @@ The implementation follows a modular design:
 
 ### 1. Set Code & Initialize Wallet
 
-First copy `.evn.example` into `.env` and set `DEPLOYER_PRIVATE_KEY` and `DEPLOYER_ADDRESS`. Then make a free [1Shot API](https://1shotapi.com) account.
-1. Create an [Escrow Wallet](https://app.1shotapi.com/escrow-wallets) on Sepolia network
-2. Add testnet funds to the escrow wallet
-3. Generate an [API Key and Secret](https://app.1shotapi.com/api-keys)
-4. Grab your Organization ID from the [Organization Details](https://app.1shotapi.com/organizations) page
-
-Fill in `ONESHOT_KEY`, `ONESHOT_SECRET`, and `ONESHOT_ORG_ID` in `.env`.
-
-Make sure you use the WalletCore address for Sepolia network for `WALLET_CORE`: `0x80296FF8D1ED46f8e3C7992664D13B833504c2Bb`
-
 Deploy and initialize your ERC-7702 wallet:
 
 ```bash
-npx hardhat run scripts/1shot_demo/1-setCodeAndInitialize.ts --network sepolia
+npx hardhat run scripts/smoke_test/1-setCodeAndInitialize.ts --network <NETWORK>
 ```
 
 This script:
 
 - Sets up the EOA as a smart contract wallet
 - Initializes core storage and configuration
+
+### 2. Execute Direct Transactions
+
+Send transactions directly from the wallet:
+
+```bash
+forge script scripts/smoke_test/2-sendTxs.sol --rpc-url <RPC_URL> --broadcast
+```
+
+This demonstrates:
+
+- Self-executed transactions
+- Batch call functionality
+- Direct interaction with external contracts
+
+### 3. Execute via Relayer
+
+Send transactions through a relayer:
+
+```bash
+forge script scripts/smoke_test/3-sendTxsAsRelayer.sol --rpc-url <RPC_URL> --broadcast
+```
+
+This shows:
+
+- Relayer-based transaction execution
+- Signature validation
+- Nonce management
+- Gas-efficient transaction batching
 
 ## Security Considerations
 
