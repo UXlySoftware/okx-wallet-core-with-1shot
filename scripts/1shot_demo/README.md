@@ -27,6 +27,9 @@ npx hardhat run scripts/1shot_demo/1-setCodeAndInitialize.ts --network sepolia
 This script:
 
 - Sets up the EOA as a smart contract wallet and uses 1Shot API to sponsor the transaction
+- Checking if you have a funded 1Shot API Escrow Wallet associated with your organization
+- Programmatically Adding new transaction endpoints to you 1Shot API account
+- Running 7702-style transaction with 1Shot API transaction endpoints
 - Initializes core storage and configuration
 
  > [!IMPORTANT]
@@ -44,5 +47,7 @@ This shows:
 
 - Relayer-based transaction execution
 - Signature validation
+- Creating and calling 1Shot API transaction endpoint with `struct` inputs
+- Using read functions with 1Shot API
 - Nonce management
 - Gas-efficient transaction batching
