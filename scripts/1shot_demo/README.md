@@ -30,7 +30,7 @@ This script:
 - Initializes core storage and configuration
 
  > [!IMPORTANT]
- > The @uxly/1shot-client typescript package is an ESM module. If you get errors associated with the dynamic import in `1shot-client-wrapper.js`, try upgrading you node version to v22.8.0 or later.
+ > The [`@uxly/1shot-client`](https://www.npmjs.com/package/@uxly/1shot-client) typescript package is an ESM module. If you get errors associated with the dynamic import in `1shot-client-wrapper.js`, try upgrading you node version to v22.8.0 or later.
 
 ### 2. Execute via Relayer
 
