@@ -4,6 +4,7 @@ const { ethers } = require('hardhat');
 
 // Recieving address for the batch transfer
 const RECIEVER_ADDRESS = '0xFeeCC911175C2B6D46BaE4fd357c995a4DC43C60';
+// Use address(1) as the validator address 
 const VALIDATOR_ADDRESS = '0x0000000000000000000000000000000000000001';
 
 // Use dynamic import for the wrapper
