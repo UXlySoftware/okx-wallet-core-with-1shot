@@ -27,7 +27,7 @@ This script:
 - Sets up the EOA as a smart contract wallet and uses 1Shot API to sponsor the transaction
 - Initializes core storage and configuration
 
-### 3. Execute via Relayer
+### 2. Execute via Relayer
 
 Send transactions through the 1Shot API relayer:
 
