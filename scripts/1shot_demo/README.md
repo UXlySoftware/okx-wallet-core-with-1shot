@@ -6,7 +6,7 @@
 
 ## 1. Set Code & Initialize Wallet
 
-First copy `.evn.example` into `.env` and set `DEPLOYER_PRIVATE_KEY` and `DEPLOYER_ADDRESS`. Then make a free [1Shot API](https://1shotapi.com) account.
+First, copy `.evn.example` into `.env` and set `DEPLOYER_PRIVATE_KEY` and `DEPLOYER_ADDRESS`. Then make a free [1Shot API](https://1shotapi.com) account.
 1. Create an [Escrow Wallet](https://app.1shotapi.com/escrow-wallets) on Sepolia network
 2. Add testnet funds to the escrow wallet
 3. Generate an [API Key and Secret](https://app.1shotapi.com/api-keys)
@@ -15,6 +15,8 @@ First copy `.evn.example` into `.env` and set `DEPLOYER_PRIVATE_KEY` and `DEPLOY
 Fill in `ONESHOT_KEY`, `ONESHOT_SECRET`, and `ONESHOT_ORG_ID` in `.env`.
 
 Make sure you use the WalletCore address for Sepolia network for `WALLET_CORE`: `0x80296FF8D1ED46f8e3C7992664D13B833504c2Bb`
+
+Also, be sure to give a private key and its associated address for `DEPLOYER_PRIVATE_KEY` and `DEPLOYER_ADDRESS`
 
 Deploy and initialize your ERC-7702 wallet:
 
