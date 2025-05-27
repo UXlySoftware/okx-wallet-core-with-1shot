@@ -1,3 +1,9 @@
+<div align="center">
+  <a href="https://youtu.be/m0ZrWnOVSco">
+    <img src="https://img.youtube.com/vi/m0ZrWnOVSco/hqdefault.jpg" alt="Watch the tutorial">
+  </a>
+</div>
+
 ## 1. Set Code & Initialize Wallet
 
 First copy `.evn.example` into `.env` and set `DEPLOYER_PRIVATE_KEY` and `DEPLOYER_ADDRESS`. Then make a free [1Shot API](https://1shotapi.com) account.
