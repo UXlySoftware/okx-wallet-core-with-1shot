@@ -30,7 +30,7 @@ const main = async () => {
   console.log("Chain ID: ", chainId);
   console.log("EOA address: ", wallet.address);
 
-  // We are going to use 1Shot API as our 7702 Relayer
+  // We are going to use 1Shot API to call executeWithValidator on behalf of the user
   // We'll check that we have an Escrow Wallet provisioned with funds
   // on the Sepolia network, if not, we'll stop
   const escrowWallets = await oneshotClient.wallets.list(
