@@ -51,7 +51,7 @@ const main = async () => {
     return
   }
 
-  // Next, we will check if we have an endpoint already created for the EOA we are relaying for
+  // Next, we will check if we have an endpoint for reading the Main Storage address
   // If we don't we'll create one in our 1Shot API organization
   const getMainStorageEndpointId = await assureMainStorageEndpoint(oneshotClient, businessId, wallet.address, escrowWallets.response[0].id);
 
@@ -61,7 +61,7 @@ const main = async () => {
   )
   console.log("Storage Location: ", storageLocation);
 
-  // Next, we will check if we have an endpoint already created for the EOA we are relaying for
+  // Check if we have an endpoint that reads the nonce of th EOA at its storage address
   // If we don't we'll create one in our 1Shot API organization
   const getNonceEndpointId = await assureGetNonceEndpoint(oneshotClient, businessId, escrowWallets.response[0].id, storageLocation);
   const coreWalletNonce = await oneshotClient.transactions.read(
@@ -70,7 +70,7 @@ const main = async () => {
   )
   console.log("Core Wallet Nonce: ", coreWalletNonce);
 
-  // Next, we will check if we have an endpoint already created for the EOA we are relaying for
+  // Check if we have an endpoint that will return the validation hash for the user's EOA address
   // If we don't we'll create one in our 1Shot API organization
   const getValidationTypedHashEndpointId = await assureGetValidationTypedHashEndpoint(oneshotClient, businessId, wallet.address, escrowWallets.response[0].id);
   const hash = await oneshotClient.transactions.read(
@@ -90,7 +90,7 @@ const main = async () => {
 
   const validationSignature = wallet.signingKey.sign(hash);
 
-  // Next, we will check if we have an endpoint already created for the EOA we are relaying for
+  // Lastly, we will check if we have an endpoint to execute batch transactions with validation for the user's EOA address
   // If we don't we'll create one in our 1Shot API organization
   const executeWithValidatorEndpointId = await assureExecuteWithValidatorEndpoint(oneshotClient, businessId, wallet.address, escrowWallets.response[0].id);
 
