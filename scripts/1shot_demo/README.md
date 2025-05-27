@@ -24,13 +24,13 @@ Deploy and initialize your ERC-7702 wallet:
 npx hardhat run scripts/1shot_demo/1-setCodeAndInitialize.ts --network sepolia
 ```
 
-This script:
+This script demonstrates:
 
-- Sets up the EOA as a smart contract wallet and uses 1Shot API to sponsor the transaction
+- Setting up the EOA as a smart contract wallet and uses 1Shot API to sponsor the transaction
 - Checking if you have a funded 1Shot API Escrow Wallet associated with your organization
-- Programmatically Adding new transaction endpoints to you 1Shot API account
+- Programmatically adding new transaction endpoints to you 1Shot API account
 - Running 7702-style transaction with 1Shot API transaction endpoints
-- Initializes core storage and configuration
+- Initializing core storage and configuration
 
  > [!IMPORTANT]
  > The [`@uxly/1shot-client`](https://www.npmjs.com/package/@uxly/1shot-client) typescript package is an ESM module. If you get errors associated with the dynamic import in `1shot-client-wrapper.js`, try upgrading you node version to v22.8.0 or later.
