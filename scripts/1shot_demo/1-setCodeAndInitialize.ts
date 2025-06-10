@@ -74,7 +74,7 @@ const main = async () => {
   )
 
   if (escrowWallets.response.length === 0) {
-    console.log("No 1Shot Escrow Wallet Provisioned on Sepolia Network Found.");
+    console.log("No 1Shot API Wallet Provisioned on Sepolia Network Found.");
     console.log("Exiting");
     return
   }
@@ -87,7 +87,7 @@ const main = async () => {
 
   // Next, we will check if we have an endpoint already created for the EOA we are relaying for
   // If we don't we'll create one in our 1Shot API organization
-  const transactions = await oneshotClient.transactions.list(
+  const transactions = await oneshotClient.contractMethods.list(
     businessId,
     {
       name: '7702 EOA Endpoint',
@@ -99,12 +99,12 @@ const main = async () => {
   if (transactions.response.length === 0) {
     // Create a new transaction endpoint for the EOA address that we can 
     // use for all future 7702 relay transaction on Sepolia network
-    const newTransaction = await oneshotClient.transactions.create(
+    const newTransaction = await oneshotClient.contractMethods.create(
       businessId,
       {
-        chain: 11155111,
+        chainId: 11155111,
         contractAddress: wallet.address as string,
-        escrowWalletId: escrowWallets.response[0].id,
+        walletId: escrowWallets.response[0].id,
         name: '7702 EOA Endpoint',
         description: 'Relays 7702 transactions for a specific EOA address',
         functionName: 'initialize',
@@ -122,7 +122,7 @@ const main = async () => {
 
   // Now we execute the transaction using the authorizationData and Signature
   // we created above. 
-  const execution = await oneshotClient.transactions.execute(
+  const execution = await oneshotClient.contractMethods.execute(
     transactionEndpoint,
     {},
     undefined,

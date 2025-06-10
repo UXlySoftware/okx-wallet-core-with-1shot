@@ -55,7 +55,7 @@ const main = async () => {
   // If we don't we'll create one in our 1Shot API organization
   const getMainStorageEndpointId = await assureMainStorageEndpoint(oneshotClient, businessId, wallet.address, escrowWallets.response[0].id);
 
-  const storageLocation = await oneshotClient.transactions.read(
+  const storageLocation = await oneshotClient.contractMethods.read(
     getMainStorageEndpointId,
     {}
   )
@@ -64,7 +64,7 @@ const main = async () => {
   // Next, we will check if we have an endpoint already created for the EOA we are relaying for
   // If we don't we'll create one in our 1Shot API organization
   const getNonceEndpointId = await assureGetNonceEndpoint(oneshotClient, businessId, escrowWallets.response[0].id, storageLocation);
-  const coreWalletNonce = await oneshotClient.transactions.read(
+  const coreWalletNonce = await oneshotClient.contractMethods.read(
     getNonceEndpointId,
     {}
   )
@@ -73,7 +73,7 @@ const main = async () => {
   // Next, we will check if we have an endpoint already created for the EOA we are relaying for
   // If we don't we'll create one in our 1Shot API organization
   const getValidationTypedHashEndpointId = await assureGetValidationTypedHashEndpoint(oneshotClient, businessId, wallet.address, escrowWallets.response[0].id);
-  const hash = await oneshotClient.transactions.read(
+  const hash = await oneshotClient.contractMethods.read(
     getValidationTypedHashEndpointId,
     {
       nonce: coreWalletNonce,
@@ -96,7 +96,7 @@ const main = async () => {
 
   // Now we execute the transaction using the authorizationData and Signature
   // we created above. 
-  const execution = await oneshotClient.transactions.execute(
+  const execution = await oneshotClient.contractMethods.execute(
     executeWithValidatorEndpointId,
     {
       calls: [
@@ -125,7 +125,7 @@ main().then(() => {
 
 
 async function assureMainStorageEndpoint(oneshotClient: OneShotClient, businessId: string, walletAddress: string, escrowWalletId: string): Promise<string> {
-  const getMainStorageEndpoints = await oneshotClient.transactions.list(
+  const getMainStorageEndpoints = await oneshotClient.contractMethods.list(
     businessId,
     {
       name: '7702 EOA getMainStorage for Core Wallet',
@@ -137,12 +137,12 @@ async function assureMainStorageEndpoint(oneshotClient: OneShotClient, businessI
   if (getMainStorageEndpoints.response.length === 0) {
     // Create a new transaction endpoint for the EOA address that we can 
     // use for all future 7702 relay transaction on Sepolia network
-    const newTransaction = await oneshotClient.transactions.create(
+    const newTransaction = await oneshotClient.contractMethods.create(
       businessId,
       {
-        chain: 11155111,
+        chainId: 11155111,
         contractAddress: walletAddress,
-        escrowWalletId: escrowWalletId,
+        walletId: escrowWalletId,
         name: '7702 EOA getMainStorage for Core Wallet',
         description: 'Gets the address of an EOAs storage slot',
         functionName: 'getMainStorage',
@@ -167,7 +167,7 @@ async function assureMainStorageEndpoint(oneshotClient: OneShotClient, businessI
 }
 
 async function assureGetNonceEndpoint(oneshotClient: OneShotClient, businessId: string, escrowWalletId: string, storageLocation: string): Promise<string> {
-  const getNonceEndpoints = await oneshotClient.transactions.list(
+  const getNonceEndpoints = await oneshotClient.contractMethods.list(
     businessId,
     {
       name: '7702 EOA getNonce for Core Wallet',
@@ -179,12 +179,12 @@ async function assureGetNonceEndpoint(oneshotClient: OneShotClient, businessId: 
   if (getNonceEndpoints.response.length === 0) {
     // Create a new transaction endpoint for the EOA address that we can 
     // use for all future 7702 relay transaction on Sepolia network
-    const newTransaction = await oneshotClient.transactions.create(
+    const newTransaction = await oneshotClient.contractMethods.create(
       businessId,
       {
-        chain: 11155111,
+        chainId: 11155111,
         contractAddress: storageLocation,
-        escrowWalletId: escrowWalletId,
+        walletId: escrowWalletId,
         name: '7702 EOA getNonce for Core Wallet',
         description: 'Gets the current nonce of an EOA from its storage address location',
         functionName: 'getNonce',
@@ -224,9 +224,9 @@ async function assureGetValidationTypedHashEndpoint(oneshotClient: OneShotClient
     const newTransaction = await oneshotClient.transactions.create(
       businessId,
       {
-        chain: 11155111,
+        chainId: 11155111,
         contractAddress: walletAddress,
-        escrowWalletId: escrowWalletId,
+        walletId: escrowWalletId,
         name: '7702 EOA getValidationTypedHash for Core Wallet',
         description: 'Returns a hash of the validation data for Core Wallet execution',
         functionName: 'getValidationTypedHash',
@@ -299,9 +299,9 @@ async function assureExecuteWithValidatorEndpoint(oneshotClient: OneShotClient, 
     const newTransaction = await oneshotClient.transactions.create(
       businessId,
       {
-        chain: 11155111,
+        chainId: 11155111,
         contractAddress: walletAddress,
-        escrowWalletId: escrowWalletId,
+        walletId: escrowWalletId,
         name: '7702 EOA executeWithValidator for Core Wallet',
         description: 'Executes a batch transaction with a validator signature',
         functionName: 'executeWithValidator',
