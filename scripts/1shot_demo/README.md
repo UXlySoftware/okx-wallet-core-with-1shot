@@ -43,7 +43,7 @@ Send transactions through the 1Shot API relayer:
 npx hardhat run scripts/1shot_demo/2-sendTxsAsRelayer.ts --network sepolia
 ```
 
-This shows:
+This demonstrates:
 
 - Relayer-based transaction execution
 - Signature validation
