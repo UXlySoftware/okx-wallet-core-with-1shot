@@ -24,6 +24,9 @@ const main = async () => {
     apiSecret: oneshotSecret,
   });
 
+  const WALLET_CORE = process.env.WALLET_CORE;
+  const WalletCore = await ethers.getContractAt("WalletCore", WALLET_CORE);
+
   const wallet = new ethers.Wallet(
     process.env.DEPLOYER_PRIVATE_KEY,
     ethers.provider
@@ -68,22 +71,35 @@ const main = async () => {
   console.log("Valid Until: ", validUntil);
   console.log("Valid After: ", validAfter);
   console.log("1Shot API Wallet Address: ", oneshotWallets.response[0].accountAddress);
-  
-  const hash = await oneshotClient.contractMethods.read(
-    getSessionTypedHashEndpointId,
+
+  const hash = await WalletCore.getSessionTypedHash(
     {
-      session: {
-        id: "1",
-        executor: oneshotWallets.response[0].accountAddress, // 1Shot API wallet address
-        validator: VALIDATOR_ADDRESS,
-        validUntil: validUntil, // 1 hour from now
-        validAfter: validAfter, // 1 hour ago
-        preHook: "0x",
-        postHook: "0x",
-        signature: "0x"
-      },
-    }
-  );
+      id: "1",
+      executor: oneshotWallets.response[0].accountAddress, // 1Shot API wallet address
+      validator: VALIDATOR_ADDRESS,
+      validUntil: validUntil, // 1 hour from now
+      validAfter: validAfter, // 1 hour ago
+      preHook: "0x",
+      postHook: "0x",
+      signature: "0x",
+    },
+  )
+
+  // const hash = await oneshotClient.contractMethods.read(
+  //   getSessionTypedHashEndpointId,
+  //   {
+  //     session: {
+  //       id: "1",
+  //       executor: oneshotWallets.response[0].accountAddress, // 1Shot API wallet address
+  //       validator: VALIDATOR_ADDRESS,
+  //       validUntil: validUntil, // 1 hour from now
+  //       validAfter: validAfter, // 1 hour ago
+  //       preHook: "0x",
+  //       postHook: "0x",
+  //       signature: "0x"
+  //     },
+  //   }
+  // );
   console.log("Session Bytes Hash: ", hash);
 
   const sessionSignature = wallet.signingKey.sign(hash);

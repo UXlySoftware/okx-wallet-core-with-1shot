@@ -284,6 +284,101 @@ async function assureGetValidationTypedHashEndpoint(oneshotClient: OneShotClient
   return getValidationTypedHashEndpoint;
 }
 
+async function assureGetSessionTypedHashEndpoint(oneshotClient: OneShotClient, businessId: string, walletAddress: string, walletId: string): Promise<string> {
+  const getSessionTypedHashEndpoints = await oneshotClient.contractMethods.list(
+    businessId,
+    {
+      name: '7702 EOA getSessionTypedHash for Core Wallet',
+      contractAddress: walletAddress
+    }
+  );
+
+  let getSessionTypedHashEndpoint;
+  if (getSessionTypedHashEndpoints.response.length === 0) {
+    // Create a new transaction endpoint for the EOA address that we can 
+    // use for all future 7702 relay transaction on Sepolia network
+    const newMethod = await oneshotClient.contractMethods.create(
+      businessId,
+      {
+        chainId: 11155111,
+        contractAddress: walletAddress,
+        walletId: walletId,
+        name: '7702 EOA getSessionTypedHash for Core Wallet',
+        description: 'Returns a hash of the session data for Core Wallet execution',
+        functionName: 'getSessionTypedHash',
+        stateMutability: 'view',
+        inputs: [
+          {
+            name: 'session',
+            type: 'struct',
+            index: 0,
+            isArray: false,
+            typeStruct: {
+              name: 'Session',
+              params: [
+                {
+                  name: 'id',
+                  type: 'uint',
+                  index: 0
+                },
+                {
+                  name: 'executor',
+                  type: 'address',
+                  index: 1
+                },
+                {
+                  name: 'validator',
+                  type: 'address',
+                  index: 2
+                },
+                {
+                  name: 'validUntil',
+                  type: 'uint',
+                  index: 3
+                },
+                {
+                  name: 'validAfter',
+                  type: 'uint',
+                  index: 4
+                },
+                {
+                  name: 'preHook',
+                  type: 'bytes',
+                  index: 5
+                },
+                {
+                  name: 'postHook',
+                  type: 'bytes',
+                  index: 6
+                },
+                {
+                  name: 'signature',
+                  type: 'bytes',
+                  index: 7
+                }
+              ]
+            }
+          },
+        ],
+        outputs: [
+          {
+            name: 'sessionTypedHash',
+            type: 'bytes',
+            typeSize: 32,
+            index: 0
+          }
+        ]
+      }
+    );
+    console.log("Session Typed Hash Endpoint Created: ", newMethod.id)
+    getSessionTypedHashEndpoint = newMethod.id;
+  } else {
+    getSessionTypedHashEndpoint = getSessionTypedHashEndpoints.response[0].id
+    console.log("Session Typed Hash Endpoint: ", getSessionTypedHashEndpoint)
+  }
+  return getSessionTypedHashEndpoint;
+}
+
 async function assureExecuteWithValidatorEndpoint(oneshotClient: OneShotClient, businessId: string, walletAddress: string, walletId: string): Promise<string> {
   const executeWithValidatorEndpoints = await oneshotClient.contractMethods.list(
     businessId,
