@@ -21,8 +21,7 @@ const main = async () => {
   const businessId: string = process.env.ONESHOT_ORG_ID as string;
   const oneshotClient = new OneShotClient({
     apiKey: oneshotKey,
-    apiSecret: oneshotSecret,
-    baseUrl: 'https://api.1shotapi.dev/v0'
+    apiSecret: oneshotSecret
   });
 
   const wallet = new ethers.Wallet(
@@ -65,75 +64,72 @@ const main = async () => {
     oneshotWallets.response[0].id
   );
 
-  const block = await wallet.provider.getBlock("latest"); 
+  // Check if we have an endpoint that will let us call executeFromExecutor
+  // If we don't we'll create one in our 1Shot API organization
+  const getExecuteFromExecutorEndpointId =
+    await assureExecuteFromExecutorEndpoint(
+      oneshotClient,
+      businessId,
+      wallet.address,
+      oneshotWallets.response[0].id
+    );
+
+  const block = await wallet.provider.getBlock("latest");
   console.log("Latest Block timestamp: ", block.timestamp);
   const validUntil = block.timestamp + 3600; // 1 hour from current block
   const validAfter = block.timestamp; // now
   console.log("Valid Until: ", validUntil);
   console.log("Valid After: ", validAfter);
-  console.log("1Shot API Wallet Address: ", oneshotWallets.response[0].accountAddress);
+  console.log(
+    "1Shot API Wallet Address: ",
+    oneshotWallets.response[0].accountAddress
+  );
 
-  const hash = await WalletCore.getSessionTypedHash(
-    [
-      "42069",
-      "0x94fca91375796381cfbc89be97e584c0c98b25a2", // this MUST be the address which submits the tx
-      VALIDATOR_ADDRESS,
-      validUntil,
-      validAfter,
-      "0x",
-      "0x",
-      "0x",
-    ]
-  )
-
-  // const hash = await oneshotClient.contractMethods.read(
-  //   getSessionTypedHashEndpointId,
-  //   {
-  //     session: {
-  //       id: "1",
-  //       executor: oneshotWallets.response[0].accountAddress, // 1Shot API wallet address
-  //       validator: VALIDATOR_ADDRESS,
-  //       validUntil: validUntil, // 1 hour from now
-  //       validAfter: validAfter, // 1 hour ago
-  //       preHook: "0x",
-  //       postHook: "0x",
-  //       signature: "0x"
-  //     },
-  //   }
-  // );
+  const hash = await oneshotClient.contractMethods.read(
+    getSessionTypedHashEndpointId,
+    {
+      session: {
+        id: "42069",
+        executor: oneshotWallets.response[0].accountAddress, // 1Shot API wallet address
+        validator: VALIDATOR_ADDRESS,
+        validUntil: `${validUntil}`, // 1 hour from now
+        validAfter: `${validAfter}`, // 1 hour ago
+        preHook: "0x",
+        postHook: "0x",
+        signature: "0x",
+      },
+    }
+  );
   console.log("Session Bytes Hash: ", hash);
 
   const sessionSignature = wallet.signingKey.sign(hash);
-  // await WalletCore.executeFromExecutor(
-  //   [
-  //     RECIEVER_ADDRESS,
-  //     100,
-  //     "0x"
-  //   ],
-  //   [
-  //     "42069",
-  //     `${oneshotWallets.response[0].accountAddress}`,
-  //     VALIDATOR_ADDRESS,
-  //     validUntil,
-  //     validAfter,
-  //     "0x",
-  //     "0x",
-  //     sessionSignature.serialized,
-  //   ]
-  // )
-  console.log("Executor:", wallet.address);
-  await WalletCore.validateSession(
-    [
-      "42069",
-      "0x94fca91375796381cfbc89be97e584c0c98b25a2",
-      VALIDATOR_ADDRESS,
-      validUntil,
-      validAfter,
-      "0x",
-      "0x",
-      sessionSignature.serialized,
-    ]
-  )
+  // Now we execute the transaction using the authorizationData and Signature
+  // we created above.
+  const execution = await oneshotClient.contractMethods.execute(
+    getExecuteFromExecutorEndpointId,
+    {
+      calls: [
+        {
+          target: RECIEVER_ADDRESS,
+          value: "1000000",
+          data: "0x", // Empty data bytes for a simple transfer
+        },
+      ],
+      session: {
+        id: "42069",
+        executor: `${oneshotWallets.response[0].accountAddress}`,
+        validator: VALIDATOR_ADDRESS,
+        validUntil: `${validUntil}`,
+        validAfter: `${validAfter}`,
+        preHook: "0x",
+        postHook: "0x",
+        signature: sessionSignature.serialized,
+      },
+    }, // params
+    undefined, // walletId
+    "execution of batch transfer with session signature via executeWithExecutor",
+  );
+  console.log("Execution ID: ", execution.id);
 };
 
 main()
@@ -242,4 +238,123 @@ async function assureGetSessionTypedHashEndpoint(
     console.log("Session Typed Hash Endpoint: ", getSessionTypedHashEndpoint);
   }
   return getSessionTypedHashEndpoint;
+}
+
+async function assureExecuteFromExecutorEndpoint(
+  oneshotClient: OneShotClient,
+  businessId: string,
+  walletAddress: string,
+  walletId: string
+): Promise<string> {
+  const getExecuteFromExecutorEndpoints =
+    await oneshotClient.contractMethods.list(businessId, {
+      name: "7702 EOA executeFromExecutor for Core Wallet",
+      contractAddress: walletAddress,
+    });
+
+  let getExecuteFromExecutorEndpoint;
+  if (getExecuteFromExecutorEndpoints.response.length === 0) {
+    // Create a new transaction endpoint for the EOA address that we can
+    // use for calling executeFromExecutor on Sepolia network
+    const newMethod = await oneshotClient.contractMethods.create(businessId, {
+      chainId: 11155111,
+      contractAddress: walletAddress,
+      walletId: walletId,
+      name: "7702 EOA executeFromExecutor for Core Wallet",
+      description:
+        "Lets 1Shot API execute a transaction as if it was another EOA address",
+      functionName: "executeFromExecutor",
+      stateMutability: "nonpayable",
+      inputs: [
+        {
+          name: "calls",
+          type: "struct",
+          index: 0,
+          isArray: true,
+          typeStruct: {
+            name: "Call",
+            params: [
+              {
+                name: "target",
+                type: "address",
+                index: 0,
+              },
+              {
+                name: "value",
+                type: "uint",
+                index: 1,
+              },
+              {
+                name: "data",
+                type: "bytes",
+                index: 2,
+              },
+            ],
+          },
+        },
+        {
+          name: "session",
+          type: "struct",
+          index: 1,
+          isArray: false,
+          typeStruct: {
+            name: "Session",
+            params: [
+              {
+                name: "id",
+                type: "uint",
+                index: 0,
+              },
+              {
+                name: "executor",
+                type: "address",
+                index: 1,
+              },
+              {
+                name: "validator",
+                type: "address",
+                index: 2,
+              },
+              {
+                name: "validUntil",
+                type: "uint",
+                index: 3,
+              },
+              {
+                name: "validAfter",
+                type: "uint",
+                index: 4,
+              },
+              {
+                name: "preHook",
+                type: "bytes",
+                index: 5,
+              },
+              {
+                name: "postHook",
+                type: "bytes",
+                index: 6,
+              },
+              {
+                name: "signature",
+                type: "bytes",
+                index: 7,
+              },
+            ],
+          },
+        },
+      ],
+      outputs: [],
+    });
+    console.log("Session Typed Hash Endpoint Created: ", newMethod.id);
+    getExecuteFromExecutorEndpoint = newMethod.id;
+  } else {
+    getExecuteFromExecutorEndpoint =
+      getExecuteFromExecutorEndpoints.response[0].id;
+    console.log(
+      "Execute as Executor Endpoint: ",
+      getExecuteFromExecutorEndpoint
+    );
+  }
+  return getExecuteFromExecutorEndpoint;
 }
